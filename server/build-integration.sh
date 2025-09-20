@@ -1,1 +1,1 @@
-docker build -f integration/Dockerfile -t integration:latest .
+docker build -f integration/Dockerfile -t perfice/integration:latest .

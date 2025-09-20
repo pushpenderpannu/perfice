@@ -1,1 +1,1 @@
-docker build -f gateway/Dockerfile -t gateway:latest .
+docker build -f gateway/Dockerfile -t perfice/gateway:latest .

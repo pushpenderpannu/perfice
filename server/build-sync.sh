@@ -1,1 +1,1 @@
-docker build -f sync/Dockerfile -t sync:latest .
+docker build -f sync/Dockerfile -t perfice/sync:latest .

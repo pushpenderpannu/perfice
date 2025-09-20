@@ -4,15 +4,14 @@ networks:
 
 services:
   auth:
-    image: auth:latest
+    image: perfice/auth:latest
     container_name: auth
     environment:
       GRPC_PORT: 5001
       HTTP_PORT: 8081
-      MONGO_URL: mongodb://localhost:27017
+      MONGO_URL: mongodb://${MONGO_USER}:${MONGO_PASS}@mongodb:27017
       JWT_SECRET: supersecret
       KAFKA_URL: kafka:9092
-      SENTRY_DSN: https://XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@XXXXXXX.ingest.us.sentry.io/XXXXXXXXXXXXXXXX
       BACKEND_BASE_URL: https://backend.com
       APP_BASE_URL: https://localhost/new
     networks:
@@ -20,14 +19,13 @@ services:
     restart: unless-stopped
 
   sync:
-    image: sync:latest
+    image: perfice/sync:latest
     container_name: sync
     environment:
       PORT: 8082
-      MONGO_URL: mongodb://localhost:27017
+      MONGO_URL: mongodb://${MONGO_USER}:${MONGO_PASS}@mongodb:27017
       AUTH_GRPC_URL: auth:5001
       KAFKA_URL: kafka:9092
-      SENTRY_DSN: https://XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@XXXXXXX.ingest.us.sentry.io/XXXXXXXXXXXXXXXX
     networks:
       - perfice
     depends_on:
@@ -37,8 +35,22 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  mongodb:
+        image: mongodb/mongodb-community-server:latest
+        container_name: mongodb
+        restart: unless-stopped
+        ports:
+            - "27017:27017"
+        volumes:
+            - mongodb:/data/db
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS}
+        networks:
+          - perfice
+
   gateway:
-    image: gateway:latest
+    image: perfice/gateway:latest
     container_name: gateway
     ports:
       - "3000:3000"
@@ -48,21 +60,19 @@ services:
       SYNC_URL: http://sync:8082
       INTEGRATION_URL: http://integration:8080
       PORT: 3000
-      SENTRY_DSN: https://XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@XXXXXXX.ingest.us.sentry.io/XXXXXXXXXXXXXXXX
     networks:
       - perfice
     restart: unless-stopped
 
   integration:
-    image: integration:latest
+    image: perfice/integration:latest
     container_name: integration
     environment:
-      MONGO_URL: mongodb://localhost:27017
+      MONGO_URL: mongodb://${MONGO_USER}:${MONGO_PASS}@mongodb:27017
       PORT: 8080
       CALLBACK_URL_BASE: http://localhost:3000
       AUTH_GRPC_URL: auth:5001
       KAFKA_URL: kafka:9092
-      SENTRY_DSN: https://XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@XXXXXXX.ingest.us.sentry.io/XXXXXXXXXXXXXXXX
       ENCRYPTION_KEY: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     networks:
       - perfice
@@ -99,3 +109,6 @@ services:
       retries: 5
       start_period: 15s
     restart: unless-stopped
+volumes:
+    mongodb:
+        external: true

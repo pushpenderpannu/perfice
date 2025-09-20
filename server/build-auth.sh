@@ -1,1 +1,1 @@
-docker build -f auth/Dockerfile -t auth:latest .
+docker build -f auth/Dockerfile -t perfice/auth:latest .
