@@ -47,3 +47,9 @@ Integration types define a specific integration provider and how to authenticate
 | client_secret | Client secret of OAuth app |
 | scopes | Scopes to request |
 | pkce | Whether to authenticate with PKCE |
+
+### API Key
+| Field    | Description |
+| -------- | ------- |
+| header  | Name of the header to send the api key in (leave empty if not used)  |
+| query | Name of the query parameter to send the api key in (leave empty if not used) |

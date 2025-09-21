@@ -35,6 +35,13 @@ func (s *IntegrationAuthenticationService) deserializeAuthenticationSettings(set
 			ClientSecret: settings["client_secret"].(string),
 			PKCE:         settings["pkce"].(bool),
 		})
+	case "apikey":
+		header, _ := settings["header"].(string)
+		query, _ := settings["query"].(string)
+		return auth.NewApiKeyAuthenticationMethod(auth.ApiKeyAuthenticationSettings{
+			Header: header,
+			Query:  query,
+		})
 	}
 
 	return nil
@@ -117,7 +124,11 @@ func (s *IntegrationAuthenticationService) OnCallback(integrationType string, co
 	}
 
 	if existing != nil {
-		_, err = s.integrationAuthenticationCollection.Update(credentials)
+		existing.AccessToken = credentials.AccessToken
+		existing.RefreshToken = credentials.RefreshToken
+		existing.Expiry = credentials.Expiry
+		existing.APIKey = credentials.APIKey
+		_, err = s.integrationAuthenticationCollection.Update(*existing)
 		if err != nil {
 			return err
 		}

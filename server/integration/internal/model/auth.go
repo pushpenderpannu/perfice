@@ -26,5 +26,6 @@ type IntegrationCredentials struct {
 	User            string             `bson:"user" json:"-"`
 	AccessToken     string             `bson:"access_token" json:"-" encrypt:"true"`
 	RefreshToken    string             `bson:"refresh_token" json:"-" encrypt:"true"`
+	APIKey          string             `bson:"api_key" json:"-" encrypt:"true"`
 	Expiry          int64              `bson:"expiry"`
 }
